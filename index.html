@@ -6,52 +6,142 @@
         <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
         <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.6.0/stitch.js"></script>
         <script src="./game.js"></script>
+        <style>
+            body {
+                margin: 0;
+                background-color: black;
+                background-image: url('bg.jpg');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center center;
+                overflow: hidden;
+            }
+
+            
+            html {
+                height: 100%;
+            }
+            
+            body{
+                height: 100%;
+            }
+            
+            .tech-savvy {
+                display: none;
+            }
+
+            #container {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: green;
+                padding: 20px;
+                color: #FFFFFF;
+                text-align: center;
+                font-family: Arial, sans-serif;
+                border-radius: 10px;
+            }
+
+            #container.hidediv {
+                display: none;
+            }
+
+            #container h1 {
+                font-size: 28px;
+                margin: 0 0 20px 0;
+            }
+
+            #gameid {
+                width: 200px;
+                padding: 5px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                margin-right: 10px;
+            }
+
+            #creategame {
+                padding: 5px 10px;
+                background-color: #FFFFFF;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            #creategame:hover {
+                background-color: #00FF00;
+            }
+
+            #information {
+                display: none;
+                margin-top: 10px;
+                font-size: 16px;
+            }
+
+            #ishost {
+                position: absolute;
+                background-color: #FFFFFF;
+                color: black;
+                padding: 10px;
+                bottom: 10px;
+                right: 10px;
+                font-size: 14px;
+            }
+        </style>
     </head>
-    <body style="margin: 0">
-        <div style="position: absolute; background-color: green; padding: 10px; margin: 10px; color: #FFFFFF">
+    <body>
+        <div id="container">
+            <h1>Enter Game ID</h1>
             <div id="visitor">
                 <input id="gameid" type="text" placeholder="Game ID" onkeypress="joinOrCreateGameKeyPress(event)" />
                 <button id="creategame" type="button" onclick="joinOrCreateGame()">Create / Join</button>
             </div>
-            <div id="information" style="display: none">
-                Game ID: 
+            <div id="information">
+                Game ID: <span id="gameid-display"></span>
             </div>
         </div>
-        <div id="ishost" style="position: absolute; background-color: #fff; color: black; padding: 10px; bottom: 10px; right: 10px;">
+        <div id="ishost">
             Not in a game...
         </div>
-        <div id="game" style="margin: 0; padding: 0; background-color: #fff;"></div>
+        <div id="game"></div>
         <script>
             const game = new Game({
                 "id": "game",
                 "width": window.innerWidth,
                 "height": window.innerHeight,
-                "realmAppId": "application-0-tnrlk",
+                "realmAppId": "application-0-vbwpk",
                 "databaseName": "mongo-draws",
                 "collectionName": "game"
             });
 
             async function joinOrCreateGame() {
-                if(!document.getElementById("gameid").value || document.getElementById("gameid").value == "") {
+                const gameIdInput = document.getElementById("gameid");
+                if (!gameIdInput.value || gameIdInput.value === "") {
                     return alert("The Game ID Must Not Be Empty");
                 }
+
                 try {
-                    let result = await game.joinOrCreateGame(document.getElementById("gameid").value);
-                    document.getElementById("ishost").innerHTML = result.authId == result.owner_id ? "You're the host!" : "You are not the host!";
+                    const result = await game.joinOrCreateGame(gameIdInput.value);
+                    document.getElementById("ishost").innerHTML = result.authId === result.owner_id ? "You're the host!" : "You are not the host!";
                     document.getElementById("visitor").style.display = "none";
-                    document.getElementById("information").innerHTML = "Game ID: " + document.getElementById("gameid").value;
+                    document.getElementById("gameid-display").innerHTML = gameIdInput.value;
                     document.getElementById("information").style.display = "block";
+                    
+                    // Add class to hide container div
+                    document.getElementById("container").classList.add("hidediv");
                 } catch (e) {
                     console.error(e);
                 }
             }
 
             function joinOrCreateGameKeyPress(event) {
-                if(event.keyCode == 13) {
+                if (event.keyCode === 13) {
                     joinOrCreateGame();
                     return false;
                 }
             }
         </script>
-    </body>
+    </body>
 </html>
